@@ -8,6 +8,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from "vue";
 import { config } from "../config/env";
+import { loadGoogleMaps } from "../utils/googleMaps";
 
 const props = defineProps<{
   city?: string;
@@ -16,34 +17,19 @@ const props = defineProps<{
 const mapContainer = ref<HTMLElement | null>(null);
 let map: google.maps.Map | null = null;
 let geocoder: google.maps.Geocoder | null = null;
-
-function loadGoogleMapsScript(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (window.google?.maps) {
-      resolve();
-      return;
-    }
-
-    const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${config.googleMaps.key}`;
-    script.async = true;
-    script.defer = true;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error("Failed to load Google Maps"));
-    document.head.appendChild(script);
-  });
-}
+let marker: google.maps.marker.AdvancedMarkerElement | null = null;
 
 async function initializeMap() {
   if (!mapContainer.value) return;
 
-  await loadGoogleMapsScript();
+  await loadGoogleMaps();
 
   const defaultLocation = { lat: 0, lng: 0 };
 
   map = new google.maps.Map(mapContainer.value, {
     center: defaultLocation,
     zoom: config.googleMaps.zoom,
+    mapId: "DEMO_MAP_ID",
     styles: [
       {
         featureType: "poi",
@@ -64,10 +50,15 @@ async function updateMapLocation(city: string) {
     if (result.results[0]?.geometry?.location) {
       const location = result.results[0].geometry.location;
       map.setCenter(location);
-      new google.maps.Marker({
+
+      if (marker) {
+        marker.map = null;
+      }
+
+      marker = new google.maps.marker.AdvancedMarkerElement({
         map,
         position: location,
-        animation: google.maps.Animation.DROP,
+        title: city,
       });
     }
   } catch (error) {
