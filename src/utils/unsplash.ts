@@ -30,6 +30,6 @@ export async function getCityPhotos(city: string): Promise<UnsplashPhoto[]> {
     return data.results;
   } catch (error) {
     console.error("Error fetching city photos:", error);
-    return [];
+    throw error;
   }
 }

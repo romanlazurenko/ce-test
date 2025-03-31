@@ -1,7 +1,7 @@
 <template>
   <div v-if="props.city" class="bg-white rounded-lg shadow-sm p-6 mb-8">
-    <h2 class="text-2xl font-semibold mb-4">Country Information</h2>
-    <div v-if="loading" class="flex justify-center items-center h-48">
+    <h2 class="text-2xl font-semibold mb-4">City Information</h2>
+    <div v-if="isLoading" class="flex justify-center items-center h-48">
       <div
         class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"
       ></div>
@@ -9,7 +9,7 @@
     <div v-else-if="error" class="text-center text-red-500 py-8">
       {{ error }}
     </div>
-    <div v-else class="flex items-center gap-6">
+    <div v-else-if="cityInfo" class="flex items-center space-x-6">
       <div class="w-24 h-24 rounded-lg overflow-hidden shadow-sm">
         <img
           :src="cityInfo.flagUrl"
@@ -19,7 +19,7 @@
       </div>
       <div>
         <h3 class="text-xl font-semibold text-gray-900">
-          {{ cityInfo.countryName || cityInfo.countryCode }}
+          {{ cityInfo.countryName }}
         </h3>
         <p class="text-gray-600">{{ cityInfo.countryCode }}</p>
       </div>
@@ -28,48 +28,42 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
+import { ref, watch } from "vue";
 import { CityInfoService } from "../services/cityInfoService";
-
-interface CityInfo {
-  countryCode: string;
-  countryName: string;
-  flagUrl: string;
-}
 
 const props = defineProps<{
   city?: string;
 }>();
 
-const loading = ref(false);
+const cityInfo = ref<{
+  countryCode: string;
+  countryName: string;
+  flagUrl: string;
+} | null>(null);
+const isLoading = ref(false);
 const error = ref<string | null>(null);
-const cityInfo = ref<CityInfo | null>(null);
 
-const updateCityInfo = async () => {
+async function fetchCityInfo() {
   if (!props.city) {
     cityInfo.value = null;
     return;
   }
 
-  loading.value = true;
-  error.value = null;
-
   try {
-    const info = await CityInfoService.getCityInfo(props.city);
-    cityInfo.value = info;
+    isLoading.value = true;
+    error.value = null;
+    cityInfo.value = await CityInfoService.getCityInfo(props.city);
   } catch (err) {
     error.value =
       err instanceof Error ? err.message : "Failed to fetch city information";
+    console.error("Error fetching city info:", err);
+    cityInfo.value = null;
   } finally {
-    loading.value = false;
+    isLoading.value = false;
   }
-};
+}
 
-watch(() => props.city, updateCityInfo);
-
-onMounted(() => {
-  updateCityInfo();
-});
+watch(() => props.city, fetchCityInfo, { immediate: true });
 </script>
 
 <style scoped>

@@ -18,7 +18,7 @@ export class MapsService {
 
     try {
       const result = await geocoder.geocode({ address: cityName });
-      if (result.results[0]?.geometry?.location) {
+      if (result.results.length) {
         const location = result.results[0].geometry.location;
         return {
           lat: location.lat(),
@@ -28,7 +28,9 @@ export class MapsService {
       throw new Error("Location not found");
     } catch (error) {
       console.error("Error geocoding address:", error);
-      throw new Error("Failed to geocode city");
+      throw error instanceof Error
+        ? error
+        : new Error("Failed to geocode city");
     }
   }
 

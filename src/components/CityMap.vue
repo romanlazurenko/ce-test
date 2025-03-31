@@ -15,8 +15,8 @@ const props = defineProps<{
 }>();
 
 const mapContainer = ref<HTMLElement | null>(null);
-let map: google.maps.Map | null = null;
-let marker: google.maps.marker.AdvancedMarkerElement | null = null;
+const map = ref<google.maps.Map | null>(null);
+const marker = ref<google.maps.marker.AdvancedMarkerElement | null>(null);
 
 const DEFAULT_LOCATION: Location = {
   lat: 50.4501,
@@ -28,14 +28,14 @@ async function initializeMap() {
 
   await loadGoogleMaps();
 
-  map = new google.maps.Map(
+  map.value = new google.maps.Map(
     mapContainer.value,
     MapsService.getMapOptions(DEFAULT_LOCATION)
   );
 
   if (!props.city) {
-    marker = new google.maps.marker.AdvancedMarkerElement({
-      map,
+    marker.value = new google.maps.marker.AdvancedMarkerElement({
+      map: map.value,
       position: DEFAULT_LOCATION,
       title: "Kyiv",
     });
@@ -43,18 +43,18 @@ async function initializeMap() {
 }
 
 async function updateMapLocation(city: string) {
-  if (!map) return;
+  if (!map.value) return;
 
   try {
     const location = await MapsService.geocodeCity(city);
-    map.setCenter(location);
+    map.value.setCenter(location);
 
-    if (marker) {
-      marker.map = null;
+    if (marker.value) {
+      marker.value.map = null;
     }
 
-    marker = new google.maps.marker.AdvancedMarkerElement({
-      map,
+    marker.value = new google.maps.marker.AdvancedMarkerElement({
+      map: map.value,
       position: location,
       title: city,
     });
@@ -66,16 +66,17 @@ async function updateMapLocation(city: string) {
 onMounted(async () => {
   await initializeMap();
   if (props.city) {
-    updateMapLocation(props.city);
+    await updateMapLocation(props.city);
   }
 });
 
 watch(
   () => props.city,
-  (newCity) => {
+  async (newCity) => {
     if (newCity) {
-      updateMapLocation(newCity);
+      await updateMapLocation(newCity);
     }
-  }
+  },
+  { immediate: true }
 );
 </script>
