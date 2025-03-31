@@ -8,6 +8,7 @@ A Vue.js application that allows users to explore cities worldwide through an in
 - Real-time weather information from OpenWeather API
 - Interactive maps with Google Maps API
 - City photo galleries using Unsplash API
+- Country flags using API Ninjas
 - Fully responsive design
 - Modern UI with Tailwind CSS and PrimeVue components
 
@@ -21,6 +22,7 @@ Before you begin, ensure you have the following:
   - Google Maps (with Places API enabled)
   - OpenWeather API
   - Unsplash API
+  - API Ninjas (for country flags)
 
 ## Setup
 
@@ -40,6 +42,7 @@ npm install
 VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key
 VITE_OPENWEATHER_API_KEY=your_openweather_api_key
 VITE_UNSPLASH_ACCESS_KEY=your_unsplash_access_key
+VITE_API_NINJAS_KEY=your_api_ninjas_key
 ```
 
 4. Start the development server:
@@ -76,22 +79,14 @@ src/
 
 ### Service Layer Architecture
 
-The application uses a service-oriented architecture with three main services:
+The application uses a service-oriented architecture with several services:
 
-1. **WeatherService**
-   - Handles OpenWeather API interactions
-   - Provides weather data with TypeScript interfaces
-   - Implements error handling for API responses
+- **MapsService**: Handles Google Maps integration for geocoding and map display
+- **WeatherService**: Manages weather data fetching from OpenWeather API
+- **GalleryService**: Handles photo gallery functionality using Unsplash API
+- **CityInfoService**: Manages country information and flag display using API Ninjas
 
-2. **MapsService**
-   - Manages Google Maps functionality
-   - Handles geolocation and geocoding
-   - Provides map configuration and markers
-
-3. **GalleryService**
-   - Manages Unsplash API interactions
-   - Handles photo fetching and formatting
-   - Implements error handling for API responses
+Each service is responsible for its own API communication and data transformation, following the single responsibility principle.
 
 ### Design Decisions and Trade-offs
 

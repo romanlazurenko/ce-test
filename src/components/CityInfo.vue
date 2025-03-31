@@ -1,0 +1,126 @@
+<template>
+  <div v-if="props.city" class="bg-white rounded-lg shadow-sm p-6 mb-8">
+    <h2 class="text-2xl font-semibold mb-4">Country Information</h2>
+    <div v-if="loading" class="flex justify-center items-center h-48">
+      <div
+        class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"
+      ></div>
+    </div>
+    <div v-else-if="error" class="text-center text-red-500 py-8">
+      {{ error }}
+    </div>
+    <div v-else class="flex items-center gap-6">
+      <div class="w-24 h-24 rounded-lg overflow-hidden shadow-sm">
+        <img
+          :src="cityInfo.flagUrl"
+          :alt="`${cityInfo.countryName} flag`"
+          class="w-full h-full object-cover"
+        />
+      </div>
+      <div>
+        <h3 class="text-xl font-semibold text-gray-900">
+          {{ cityInfo.countryName || cityInfo.countryCode }}
+        </h3>
+        <p class="text-gray-600">{{ cityInfo.countryCode }}</p>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, watch, onMounted } from "vue";
+import { CityInfoService } from "../services/cityInfoService";
+
+interface CityInfo {
+  countryCode: string;
+  countryName: string;
+  flagUrl: string;
+}
+
+const props = defineProps<{
+  city?: string;
+}>();
+
+const loading = ref(false);
+const error = ref<string | null>(null);
+const cityInfo = ref<CityInfo | null>(null);
+
+const updateCityInfo = async () => {
+  if (!props.city) {
+    cityInfo.value = null;
+    return;
+  }
+
+  loading.value = true;
+  error.value = null;
+
+  try {
+    const info = await CityInfoService.getCityInfo(props.city);
+    cityInfo.value = info;
+  } catch (err) {
+    error.value =
+      err instanceof Error ? err.message : "Failed to fetch city information";
+  } finally {
+    loading.value = false;
+  }
+};
+
+watch(() => props.city, updateCityInfo);
+
+onMounted(() => {
+  updateCityInfo();
+});
+</script>
+
+<style scoped>
+.city-info {
+  background: var(--surface-card);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  margin: 1rem 0;
+  box-shadow: var(--card-shadow);
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100px;
+}
+
+.error {
+  color: var(--red-500);
+  text-align: center;
+  padding: 1rem;
+}
+
+.info-content {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.flag-container {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.flag {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.details {
+  flex: 1;
+}
+
+.country {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+</style>

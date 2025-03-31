@@ -12,6 +12,7 @@
 
     <main class="w-full max-w-7xl mx-auto px-8 py-6 rounded-lg">
       <SearchBar v-model="searchQuery" />
+      <CityInfo :city="searchQuery" />
       <WeatherInfo :city="searchQuery" />
       <CityMap :city="searchQuery" />
       <CityGallery :city="searchQuery" />
@@ -25,6 +26,7 @@ import SearchBar from "./components/SearchBar.vue";
 import WeatherInfo from "./components/WeatherInfo.vue";
 import CityMap from "./components/CityMap.vue";
 import CityGallery from "./components/CityGallery.vue";
+import CityInfo from "./components/CityInfo.vue";
 
 const searchQuery = ref("");
 </script>
