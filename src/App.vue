@@ -1,33 +1,36 @@
 <template>
-  <div>
-    <h1 class="bg-slate-500 font-bold underline">Hello world!</h1>
-    <Button label="Click" />
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+  <div class="min-h-screen bg-gray-100">
+    <header class="bg-white shadow-sm">
+      <div class="w-full px-8 py-4">
+        <h1
+          class="text-3xl font-bold text-gray-900 w-full max-w-7xl mx-auto lg:px-8 md:px-4"
+        >
+          City Explorer
+        </h1>
+      </div>
+    </header>
+
+    <main class="w-full max-w-7xl mx-auto px-8 py-6 rounded-lg">
+      <SearchBar v-model="searchQuery" />
+      <WeatherInfo :city="searchQuery" />
+      <CityMap :city="searchQuery" />
+      <CityGallery :city="searchQuery" />
+    </main>
   </div>
-  <HelloWorld msg="Vite + Vue" />
 </template>
 
 <script setup lang="ts">
-import Button from "primevue/button";
-import HelloWorld from "./components/HelloWorld.vue";
+import { ref } from "vue";
+import SearchBar from "./components/SearchBar.vue";
+import WeatherInfo from "./components/WeatherInfo.vue";
+import CityMap from "./components/CityMap.vue";
+import CityGallery from "./components/CityGallery.vue";
+
+const searchQuery = ref("");
 </script>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+.p-inputtext {
+  @apply w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500;
 }
 </style>
