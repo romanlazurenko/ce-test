@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+  <div v-show="props.city" class="bg-white rounded-lg shadow-sm p-6 mb-8">
     <h2 class="text-2xl font-semibold mb-4">City Map</h2>
     <div ref="mapContainer" class="h-[600px] rounded-lg overflow-hidden"></div>
   </div>
@@ -18,34 +18,27 @@ const mapContainer = ref<HTMLElement | null>(null);
 let map: google.maps.Map | null = null;
 let marker: google.maps.marker.AdvancedMarkerElement | null = null;
 
+const DEFAULT_LOCATION: Location = {
+  lat: 50.4501,
+  lng: 30.5234,
+};
+
 async function initializeMap() {
   if (!mapContainer.value) return;
 
   await loadGoogleMaps();
 
-  try {
-    const currentLocation = await MapsService.getCurrentLocation();
-    map = new google.maps.Map(
-      mapContainer.value,
-      MapsService.getMapOptions(currentLocation)
-    );
+  map = new google.maps.Map(
+    mapContainer.value,
+    MapsService.getMapOptions(DEFAULT_LOCATION)
+  );
 
-    // Add marker for current location if no city is selected
-    if (!props.city) {
-      marker = new google.maps.marker.AdvancedMarkerElement({
-        map,
-        position: currentLocation,
-        title: "Current Location",
-      });
-    }
-  } catch (error) {
-    console.error("Error initializing map:", error);
-    // Initialize with default location if geolocation fails
-    const defaultLocation = { lat: 0, lng: 0 };
-    map = new google.maps.Map(
-      mapContainer.value,
-      MapsService.getMapOptions(defaultLocation)
-    );
+  if (!props.city) {
+    marker = new google.maps.marker.AdvancedMarkerElement({
+      map,
+      position: DEFAULT_LOCATION,
+      title: "Kyiv",
+    });
   }
 }
 

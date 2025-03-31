@@ -11,33 +11,6 @@ export class MapsService {
     return city.split(/\s*[-,]\s*/)[0].trim();
   }
 
-  static async getCurrentLocation(): Promise<Location> {
-    return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) {
-        reject(new Error("Geolocation is not supported"));
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          resolve({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          });
-        },
-        (error) => {
-          console.error("Error getting location:", error);
-          resolve({ lat: 0, lng: 0 });
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 5000,
-          maximumAge: 0,
-        }
-      );
-    });
-  }
-
   static async geocodeCity(city: string): Promise<Location> {
     await loadGoogleMaps();
     const geocoder = new google.maps.Geocoder();
