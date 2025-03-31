@@ -7,8 +7,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from "vue";
-import { config } from "../config/env";
 import { loadGoogleMaps } from "../utils/googleMaps";
+import { MapsService, type Location } from "../services/mapsService";
 
 const props = defineProps<{
   city?: string;
@@ -16,7 +16,6 @@ const props = defineProps<{
 
 const mapContainer = ref<HTMLElement | null>(null);
 let map: google.maps.Map | null = null;
-let geocoder: google.maps.Geocoder | null = null;
 let marker: google.maps.marker.AdvancedMarkerElement | null = null;
 
 async function initializeMap() {
@@ -24,45 +23,50 @@ async function initializeMap() {
 
   await loadGoogleMaps();
 
-  const defaultLocation = { lat: 0, lng: 0 };
-
-  map = new google.maps.Map(mapContainer.value, {
-    center: defaultLocation,
-    zoom: config.googleMaps.zoom,
-    mapId: "DEMO_MAP_ID",
-    styles: [
-      {
-        featureType: "poi",
-        elementType: "labels",
-        stylers: [{ visibility: "off" }],
-      },
-    ],
-  });
-
-  geocoder = new google.maps.Geocoder();
-}
-
-async function updateMapLocation(city: string) {
-  if (!map || !geocoder) return;
-
   try {
-    const result = await geocoder.geocode({ address: city });
-    if (result.results[0]?.geometry?.location) {
-      const location = result.results[0].geometry.location;
-      map.setCenter(location);
+    const currentLocation = await MapsService.getCurrentLocation();
+    map = new google.maps.Map(
+      mapContainer.value,
+      MapsService.getMapOptions(currentLocation)
+    );
 
-      if (marker) {
-        marker.map = null;
-      }
-
+    // Add marker for current location if no city is selected
+    if (!props.city) {
       marker = new google.maps.marker.AdvancedMarkerElement({
         map,
-        position: location,
-        title: city,
+        position: currentLocation,
+        title: "Current Location",
       });
     }
   } catch (error) {
-    console.error("Error geocoding address:", error);
+    console.error("Error initializing map:", error);
+    // Initialize with default location if geolocation fails
+    const defaultLocation = { lat: 0, lng: 0 };
+    map = new google.maps.Map(
+      mapContainer.value,
+      MapsService.getMapOptions(defaultLocation)
+    );
+  }
+}
+
+async function updateMapLocation(city: string) {
+  if (!map) return;
+
+  try {
+    const location = await MapsService.geocodeCity(city);
+    map.setCenter(location);
+
+    if (marker) {
+      marker.map = null;
+    }
+
+    marker = new google.maps.marker.AdvancedMarkerElement({
+      map,
+      position: location,
+      title: city,
+    });
+  } catch (error) {
+    console.error("Error updating map location:", error);
   }
 }
 
