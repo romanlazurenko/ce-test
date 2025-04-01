@@ -19,8 +19,11 @@ describe("CityInfoService", () => {
       };
 
       const mockGeocoder = {
-        geocode: vi.fn((params, callback) => {
-          callback([mockGeocoderResult], "OK");
+        geocode: vi.fn().mockImplementation((request, callback) => {
+          expect(request).toEqual({ address: "London" });
+          if (typeof callback === "function") {
+            callback([mockGeocoderResult], "OK");
+          }
         }),
       };
 
@@ -58,8 +61,11 @@ describe("CityInfoService", () => {
 
     it("should handle geocoding failure", async () => {
       const mockGeocoder = {
-        geocode: vi.fn((params, callback) => {
-          callback([], "ZERO_RESULTS");
+        geocode: vi.fn().mockImplementation((request, callback) => {
+          expect(request).toEqual({ address: "InvalidCity" });
+          if (typeof callback === "function") {
+            callback([], "ZERO_RESULTS");
+          }
         }),
       };
 
@@ -74,8 +80,11 @@ describe("CityInfoService", () => {
 
     it("should handle missing country component", async () => {
       const mockGeocoder = {
-        geocode: vi.fn((params, callback) => {
-          callback([{ address_components: [] }], "OK");
+        geocode: vi.fn().mockImplementation((request, callback) => {
+          expect(request).toEqual({ address: "CityWithoutCountry" });
+          if (typeof callback === "function") {
+            callback([{ address_components: [] }], "OK");
+          }
         }),
       };
 
@@ -90,21 +99,24 @@ describe("CityInfoService", () => {
 
     it("should handle flag API failure", async () => {
       const mockGeocoder = {
-        geocode: vi.fn((params, callback) => {
-          callback(
-            [
-              {
-                address_components: [
-                  {
-                    long_name: "United Kingdom",
-                    short_name: "GB",
-                    types: ["country"],
-                  },
-                ],
-              },
-            ],
-            "OK"
-          );
+        geocode: vi.fn().mockImplementation((request, callback) => {
+          expect(request).toEqual({ address: "London" });
+          if (typeof callback === "function") {
+            callback(
+              [
+                {
+                  address_components: [
+                    {
+                      long_name: "United Kingdom",
+                      short_name: "GB",
+                      types: ["country"],
+                    },
+                  ],
+                },
+              ],
+              "OK"
+            );
+          }
         }),
       };
 

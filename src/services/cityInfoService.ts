@@ -1,4 +1,3 @@
-import { MapsService } from "./mapsService";
 import { config } from "../config/env";
 
 interface CountryFlagResponse {

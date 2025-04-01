@@ -18,6 +18,7 @@ Before you begin, ensure you have the following:
 
 - Node.js (v14 or higher)
 - npm or yarn
+- Docker (optional, for containerized deployment)
 - API Keys for:
   - Google Maps (with Places API enabled)
   - OpenWeather API
@@ -54,6 +55,42 @@ npm run dev
 ```bash
 npm run build
 ```
+
+## Docker Deployment
+
+To run the application using Docker:
+
+1. Build the Docker image:
+```bash
+docker-compose up --build
+```
+
+The application will be available at `http://localhost:80`.
+
+### Environment Variables with Docker
+
+When running with Docker, you can pass environment variables using the `-e` flag:
+
+```bash
+docker run -p 80:80 \
+  -e VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key \
+  -e VITE_OPENWEATHER_API_KEY=your_openweather_api_key \
+  -e VITE_UNSPLASH_ACCESS_KEY=your_unsplash_access_key \
+  -e VITE_API_NINJAS_KEY=your_api_ninjas_key \
+  city-explorer
+```
+
+Or using an environment file:
+
+```bash
+docker run -p 80:80 --env-file .env city-explorer
+```
+
+### Important Note About Google Maps API
+
+Currently it throws "Method doesn't allow unregistered callers" error, even if API key restrictions been updated to allow requests from current domain or IP address.
+
+
 
 ## Architecture
 
