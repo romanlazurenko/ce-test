@@ -12,10 +12,10 @@
         optionLabel="description"
         :loading="isLoading"
       >
-        <template #item="{ item }">
+        <template #option="{ option }">
           <div class="flex align-items-center">
             <i class="pi pi-map-marker mr-2" />
-            <span>{{ item.description }}</span>
+            <span>{{ option.description }}</span>
           </div>
         </template>
       </AutoComplete>

@@ -1,7 +1,10 @@
 <template>
-  <div v-if="props.city" class="bg-white rounded-lg shadow-sm p-6 mb-8">
+  <div
+    v-if="props.city"
+    class="bg-white rounded-lg shadow-sm p-6 mb-8 max-h-[192px]"
+  >
     <h2 class="text-2xl font-semibold mb-4">City Information</h2>
-    <div v-if="isLoading" class="flex justify-center items-center h-48">
+    <div v-if="isLoading" class="flex justify-center items-center h-24">
       <div
         class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"
       ></div>
